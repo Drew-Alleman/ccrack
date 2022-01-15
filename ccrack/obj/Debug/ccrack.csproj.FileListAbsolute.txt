@@ -1,0 +1,11 @@
+C:\Users\Dalleman\source\repos\ccrack\ccrack\bin\Debug\ccrack.exe.config
+C:\Users\Dalleman\source\repos\ccrack\ccrack\bin\Debug\ccrack.exe
+C:\Users\Dalleman\source\repos\ccrack\ccrack\bin\Debug\ccrack.pdb
+C:\Users\Dalleman\source\repos\ccrack\ccrack\obj\Debug\ccrack.csproj.AssemblyReference.cache
+C:\Users\Dalleman\source\repos\ccrack\ccrack\obj\Debug\ccrack.csproj.SuggestedBindingRedirects.cache
+C:\Users\Dalleman\source\repos\ccrack\ccrack\obj\Debug\ccrack.Form1.resources
+C:\Users\Dalleman\source\repos\ccrack\ccrack\obj\Debug\ccrack.Properties.Resources.resources
+C:\Users\Dalleman\source\repos\ccrack\ccrack\obj\Debug\ccrack.csproj.GenerateResource.cache
+C:\Users\Dalleman\source\repos\ccrack\ccrack\obj\Debug\ccrack.csproj.CoreCompileInputs.cache
+C:\Users\Dalleman\source\repos\ccrack\ccrack\obj\Debug\ccrack.exe
+C:\Users\Dalleman\source\repos\ccrack\ccrack\obj\Debug\ccrack.pdb

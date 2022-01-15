@@ -1,56 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static Encryption.Encryptor;
 using System.Windows.Forms;
+using System.Security.Cryptography;
+using System.Text;
+using System.IO;
+
 
 namespace ccrack {
+    
+    
     public partial class Form1 : Form
     {
+        public static Form1 form;
+
         public Form1()
         {
             InitializeComponent();
+            form = this;
+            cancelButton.Enabled = false;
             getEncryptionMethod.Items.Add("SHA1");
             getEncryptionMethod.Items.Add("SHA256");
             getEncryptionMethod.Items.Add("SHA384");
             getEncryptionMethod.Items.Add("SHA512");
+            getEncryptionMethod.Items.Add("MD5");
 
+        }
+
+        public void writeToTextBox(string text)
+        {
+            output.Text += $"{text}\r";
+        }
+
+
+        public void clearTextBox() { 
+            output.Text = "";
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
 
         }
-       
-        private bool islog = false;
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            islog = true;
-        }
-        private void button1_Click(object sender, EventArgs e){
-            var wordlist = (string)getWordlistFile.Text;
-            var hashes = getHashesToCrack.Text;
+        private void button1_Click(object sender, EventArgs e) {
+            clearTextBox();
+            crackButton.Enabled = false;
+            cancelButton.Enabled = true;
+            var en = new Encryption.Encryptor();
+            var wordlist = (string)wordlistFile.Text;
+            string[] collectedHashes = en.cleanHashes(hash.Text.Split('\n'));
             var encryptionMethod = (string)getEncryptionMethod.SelectedItem;
-            Utils.Utilities u = new Utils.Utilities();
-            var result = u.HandleWordlistLines(wordlist, encryptionMethod, hashes);
-            if (result != null)
-            {
-                output.Text += result;
-            }
-            else
-            {
-                output.Text += "Could not crack hash!\r\n";
-            }
-        }
-
-        private void progressBar1_Click(object sender, EventArgs e)
-        {
-
+            en.encryptLines(wordlist, encryptionMethod, collectedHashes);
+            crackButton.Enabled = true;
         }
 
         private void getHashesToCrack_TextChanged(object sender, EventArgs e)
@@ -71,6 +73,21 @@ namespace ccrack {
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void getEncryptionMethod_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cancelButton_Click(object sender, EventArgs e)
+        {
+            crackButton.Enabled = true;
         }
     }
 }
