@@ -1,13 +1,59 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static ccrack.Form1;
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
+using ccrack;
+using System.Threading;
+using System.Collections.Generic;
 
+namespace Utils {
+
+    class Utilities
+    {
+
+        public static List<int> CalculateThreadWorkCount(int lineCount, int threadCount)
+        {
+            //threadCount = threadCount + 1;
+            List<int> parts = new List<int>();
+            if (lineCount % threadCount == 0)
+            {
+                for (int i = 0; i < threadCount; i++)
+                    parts.Add(lineCount / threadCount);
+
+            }
+            else
+            {
+                int zp = threadCount - (lineCount % threadCount);
+                int pp = lineCount / threadCount;
+                for (int i = 0; i < threadCount; i++)
+                {
+
+                    if (i >= zp)
+                        parts.Add(pp + 1);
+                    else
+                        parts.Add(pp);
+                }
+            }
+            return parts;
+        }
+
+
+        public static List<int> CalculateIndex(List<int> count, int threadCount)
+        {
+            List<int> work = new List<int>();
+            work.Add(0);
+            for (int i = 1; i < threadCount; i++)
+            {
+                int sum = count[i] + work[i - 1];
+                work.Add(sum);
+            }
+            return work;
+        }
+    }
+}
 
 namespace Encryption
 {
@@ -57,7 +103,7 @@ namespace Encryption
         */
         public static string Md5(string input)
         {
-            using (MD5 md5 =MD5.Create())
+            using (MD5 md5 = MD5.Create())
             {
                 byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(input);
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
@@ -124,7 +170,7 @@ namespace Encryption
         public static string cleanHash(string hash)
         {
             string cleanedHash = string.Empty;
-            string[] charsToRemove = { "\t", "\r", "\n"};
+            string[] charsToRemove = { "\t", "\r", "\n" };
             foreach (var c in charsToRemove)
             {
                 cleanedHash = hash.Replace(c, string.Empty);
@@ -140,14 +186,15 @@ namespace Encryption
             return null;
         }
 
-         /*
-         * Iterates over each hash and removes '\r'
-         * Cleaned hashes in an array
-         * 
-         * @param hashes Hashes to clean
-         * @return Cleaned hashes in an array.
-         */
-        public string[] cleanHashes(string[] hashes) {
+        /*
+        * Iterates over each hash and removes '\r'
+        * Cleaned hashes in an array
+        * 
+        * @param hashes Hashes to clean
+        * @return Cleaned hashes in an array.
+        */
+        public string[] cleanHashes(string[] hashes)
+        {
             for (int i = 0; i < hashes.Length; i++)
             {
                 hashes[i] = cleanHash(hashes[i]);
@@ -166,33 +213,49 @@ namespace Encryption
          * @param hashToCrack Hash to crack
          * @return correct password or a message informing the user that it was unable to be cracked. 
          */
-        public void encryptLines(string wordlist, string encryptionMethod, string[] hashes)
+        public void CreateEncryptionThreads(string wordlist, string encryptionMethod, string[] hashes, int threadCount)
         {
-            foreach (var line in File.ReadLines(wordlist))
-                {
-                    string encryptedLine = Encrypt(line, encryptionMethod);
-                    string result = checkForMatches(hashes, encryptedLine, line);
-                    if (result != null)
-                        form.writeToTextBox(result);
-                }
-            form.writeToTextBox("Completed!");
+            List<string> words = File.ReadLines(wordlist).ToList();
+            List<int> parts = Utils.Utilities.CalculateThreadWorkCount(words.Count(), threadCount);
+            List<int> indexs = Utils.Utilities.CalculateIndex(parts, threadCount);
+            indexs[threadCount - 1] = indexs[threadCount - 1] - 1;
+            for (int i = 0; i < threadCount; i++)
+            {
+                int index = indexs[i];
+                int count = parts[i];
+                List<string> part = words.GetRange(index, count);
+                Thread t = new Thread(new ThreadStart(() => ThreadEncrypt(part, hashes, encryptionMethod)));
+                t.Start();
+            }
+        }
+
+        public static void ThreadEncrypt(List<String> part, string[] hashes, string encryptionMethod)
+        {
+            foreach (var line in part)
+            {
+                string encryptedLine = Encrypt(line, encryptionMethod);
+                string result = checkForMatches(hashes, encryptedLine, line);
+                if (result != null)
+                    form.writeToTextBox(result);
+            }
+
         }
     }
-}
 
 
-namespace ccrack {
-    internal static class Program
-    {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
+namespace ccrack { 
+        internal static class Program
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            /// <summary>
+            /// The main entry point for the application.
+            /// </summary>
+            [STAThread]
+            static void Main()
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new Form1());
+            }
         }
     }
 }

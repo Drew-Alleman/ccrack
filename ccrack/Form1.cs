@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Data;
-using System.Linq;
-using static Encryption.Encryptor;
 using System.Windows.Forms;
-using System.Security.Cryptography;
-using System.Text;
-using System.IO;
-
+using System.Drawing;
 
 namespace ccrack {
     
@@ -14,11 +8,13 @@ namespace ccrack {
     public partial class Form1 : Form
     {
         public static Form1 form;
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
 
         public Form1()
         {
             InitializeComponent();
             form = this;
+            TextBox.CheckForIllegalCrossThreadCalls = false;
             cancelButton.Enabled = false;
             getEncryptionMethod.Items.Add("SHA1");
             getEncryptionMethod.Items.Add("SHA256");
@@ -30,6 +26,7 @@ namespace ccrack {
 
         public void writeToTextBox(string text)
         {
+
             output.Text += $"{text}\r";
         }
 
@@ -49,9 +46,10 @@ namespace ccrack {
             cancelButton.Enabled = true;
             var en = new Encryption.Encryptor();
             var wordlist = (string)wordlistFile.Text;
+            int threadCount = int.Parse(setThreadCount.Text);
             string[] collectedHashes = en.cleanHashes(hash.Text.Split('\n'));
             var encryptionMethod = (string)getEncryptionMethod.SelectedItem;
-            en.encryptLines(wordlist, encryptionMethod, collectedHashes);
+            en.CreateEncryptionThreads(wordlist, encryptionMethod, collectedHashes, threadCount);
             crackButton.Enabled = true;
         }
 
@@ -88,6 +86,11 @@ namespace ccrack {
         private void cancelButton_Click(object sender, EventArgs e)
         {
             crackButton.Enabled = true;
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
