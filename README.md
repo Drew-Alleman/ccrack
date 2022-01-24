@@ -1,8 +1,11 @@
 # ccrack
-An unfinished Password cracker coded in C#
+A multithreaded hash cracker coded in C#. 
 <br>
 ![Preview](gui_preview.png)
 
-## FAQ
-What encryption methods does it support? It supports SHA1, SHA256, SHA384, SHA512 and MD5.
+# Features
+## Supported Encryptions
+SHA1, SHA256, SHA384, SHA512 and MD5.
 
+# Miscellaneous
+* Able to load hashes from a hash file.
