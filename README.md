@@ -7,5 +7,5 @@ A multithreaded hash cracker coded in C#.
 ## Supported Encryptions
 SHA1, SHA256, SHA384, SHA512 and MD5.
 
-# Miscellaneous
+## Miscellaneous
 * Able to load hashes from a hash file.
