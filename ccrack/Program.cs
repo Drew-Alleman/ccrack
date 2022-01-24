@@ -50,10 +50,15 @@ namespace Utils {
             return cleanedHash.Trim('\r');
         }
 
-
+        /* CalculateThreadWorkCount(lineCount, threadCount)
+        * Splits the amount of lines in the wordlist into n (threadCount) amounts
+        *
+        * @param lineCount          How many words are in the wordlist
+        * @param threadCount        Thread Count
+        * @return                   Calculated numbers
+        */
         public static List<int> CalculateThreadWorkCount(int lineCount, int threadCount)
         {
-            //threadCount = threadCount + 1;
             List<int> parts = new List<int>();
             if (lineCount % threadCount == 0)
             {
@@ -77,6 +82,13 @@ namespace Utils {
             return parts;
         }
 
+        /* StreamReadlines(filename)
+        *  Reads filename into a list
+        *
+        * @param filename           Filename to read from
+        * 
+        * @return                   list of words
+        */
         public static List<string> StreamReadlines(string filename)
         {
             List<string> text = new List<string>();
@@ -92,17 +104,30 @@ namespace Utils {
             return text;
         }
 
-
-        public static List<int> CalculateIndex(List<int> count, int threadCount)
+        /* CalculateIndex(parts, threadCount)
+        *  Calculates the index of each part
+        *
+        * @param parts              Parts calculated by CalculateThreadWorkCount
+        * @param threadCount        Thread Count
+        * @return                   indexs
+        */
+        public static List<int> CalculateIndex(List<int> parts, int threadCount)
         {
-            List<int> work = new List<int>();
-            work.Add(0);
+            List<int> index = new List<int>();
+            index.Add(0); // Start of wordlist file is line 0 
             for (int i = 1; i < threadCount; i++)
-            {
-                int sum = count[i] + work[i - 1];
-                work.Add(sum);
-            }
-            return work;
+                index.Add(parts[i] + index[i - 1]); // Adds the previous index with the part value
+            /*
+             * E.g if the wordlist has 10 lines
+             * 
+             * | i | index | parts | sum | 
+             *   0     0       2      2
+             *   1     2       2      4
+             *   2     4       2      6
+             *   3     6       2      8
+             *   4     8       2      10
+            */
+            return index;
         }
     }
 }
@@ -295,9 +320,6 @@ namespace Encryption
 namespace ccrack { 
         internal static class Program
         {
-            /// <summary>
-            /// The main entry point for the application.
-            /// </summary>
             [STAThread]
             static void Main()
             {
