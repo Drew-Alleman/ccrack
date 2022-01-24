@@ -3,16 +3,53 @@ using System.Linq;
 using System.Windows.Forms;
 using static ccrack.Form1;
 using System.Security.Cryptography;
-using System.Text;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using ccrack;
 using System.Threading;
-using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Utils {
 
     class Utilities
     {
+
+        /*
+        * Iterates over each hash and removes '\r'
+        * Cleaned hashes in an array
+        * 
+        * @param hashes Hashes to clean
+        * @return Cleaned hashes in an array.
+        */
+        public static string[] cleanHashes(string[] hashes)
+        {
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                hashes[i] = cleanHash(hashes[i]);
+            }
+
+            return hashes;
+        }
+
+
+        /*
+        * Removes new lines and bytes'\r'
+        * 
+        * @param hashes Hashes to clean
+        * @return Clean hash
+        */
+        public static string cleanHash(string hash)
+        {
+            string cleanedHash = string.Empty;
+            string[] charsToRemove = { "\t", "\r", "\n" };
+            foreach (var c in charsToRemove)
+            {
+                cleanedHash = hash.Replace(c, string.Empty);
+            }
+            return cleanedHash.Trim('\r');
+        }
+
 
         public static List<int> CalculateThreadWorkCount(int lineCount, int threadCount)
         {
@@ -40,6 +77,21 @@ namespace Utils {
             return parts;
         }
 
+        public static List<string> StreamReadlines(string filename)
+        {
+            List<string> text = new List<string>();
+            FileInfo fi1 = new FileInfo(filename);
+            using (StreamReader sr = fi1.OpenText())
+            {
+                string s = "";
+                while ((s = sr.ReadLine()) != null)
+                {
+                    text.Add(s);
+                }
+            }
+            return text;
+        }
+
 
         public static List<int> CalculateIndex(List<int> count, int threadCount)
         {
@@ -60,11 +112,12 @@ namespace Encryption
 
     public class Encryptor
     {
-        /*
-        * Encrypts a string into a sha1 hash
+        /* Sha1(input)
+        * Encrypts a string into a Sha1 hash
         *
-        * @param str String to Encrypt
-        * @return computed hash
+        * @param input              String to encrypt
+        * 
+        * @return                   Computed hash
         */
         public static string Sha1(string input)
         {
@@ -72,11 +125,12 @@ namespace Encryption
             return string.Concat(hash.Select(b => b.ToString("x2"))).ToLower();
         }
 
-        /*
+        /* Sha256(input)
         * Encrypts a string into a Sha256 hash
         *
-        * @param str String to Encrypt
-        * @return computed hash
+        * @param input              String to encrypt
+        * 
+        * @return                   Computed hash
         */
         public static string Sha256(string input)
         {
@@ -84,28 +138,32 @@ namespace Encryption
             return string.Concat(hash.Select(b => b.ToString("x2"))).ToLower();
         }
 
-        /*
+        /* Sha384(input)
         * Encrypts a string into a Sha384 hash
         *
-        * @param str String to Encrypt
-        * @return computed hash
+        * @param input              String to encrypt
+        * 
+        * @return                   Computed hash
         */
         public static string Sha384(string input)
         {
             var hash = new SHA384Managed().ComputeHash(Encoding.UTF8.GetBytes(input));
             return string.Concat(hash.Select(b => b.ToString("x2"))).ToLower();
         }
-        /*
+
+
+        /* Md5(input)
         * Encrypts a string into a Md5 hash
         *
-        * @param str String to Encrypt
-        * @return computed hash
+        * @param input              String to encrypt
+        * 
+        * @return                   Computed hash
         */
         public static string Md5(string input)
         {
             using (MD5 md5 = MD5.Create())
             {
-                byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(input);
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < hashBytes.Length; i++)
@@ -116,11 +174,13 @@ namespace Encryption
             }
         }
 
-        /*
+
+        /* Sha512(input)
         * Encrypts a string into a Sha512 hash
         *
-        * @param str String to Encrypt
-        * @return computed hash
+        * @param input              String to encrypt
+        * 
+        * @return                   Computed hash
         */
         public static string Sha512(string input)
         {
@@ -128,12 +188,12 @@ namespace Encryption
             return string.Concat(hash.Select(b => b.ToString("x2"))).ToLower();
         }
 
-        /*
+        /* Encrypt(word, encryptionMethod)
         * Encrypts a string into a hash using the provided encryption method
         *
-        * @param word String to Encrypt
-        * @param encryptionMethod  encryption method
-        * @param input String to Encrypt 
+        * @param word              Word to encrypt
+        * @param encryptionMethod  encryption method E.g SHA1
+        * 
         * @return Returns the computed hash
         */
         public static string Encrypt(string word, string encryptionMethod)
@@ -160,65 +220,44 @@ namespace Encryption
             return result;
         }
 
-
-        /*
-        * Removes new lines and bytes'\r'
-        * 
-        * @param hashes Hashes to clean
-        * @return Clean hash
-        */
-        public static string cleanHash(string hash)
-        {
-            string cleanedHash = string.Empty;
-            string[] charsToRemove = { "\t", "\r", "\n" };
-            foreach (var c in charsToRemove)
-            {
-                cleanedHash = hash.Replace(c, string.Empty);
-            }
-            return cleanedHash.Trim('\r');
-        }
-
-
-        public static string checkForMatches(string[] hashes, string computedHash, string line)
+        /* checkForMatches(hashes, computedHash, line)
+         * Splits the wordlist words into N parts (threadCount). 
+         * Creates threads to handle each part of the wordlist
+         * 
+         * @param hashes              Hashes to crack
+         * @param line                Original word from textfile
+         * @param computedHash        Line as a Computed hash from Encrypt()
+         * 
+         * @return                    NULL if the password was not found otherwise text informing the user the 
+         *                            hash was cracked.
+         */
+        public static string checkForMatches(List<string> hashes, string line, string computedHash)
         {
             if (hashes.Contains(computedHash.ToLower()))
                 return $"{computedHash}:{line}\r\n";
             return null;
         }
 
-        /*
-        * Iterates over each hash and removes '\r'
-        * Cleaned hashes in an array
-        * 
-        * @param hashes Hashes to clean
-        * @return Cleaned hashes in an array.
-        */
-        public string[] cleanHashes(string[] hashes)
-        {
-            for (int i = 0; i < hashes.Length; i++)
-            {
-                hashes[i] = cleanHash(hashes[i]);
-            }
-
-            return hashes;
-        }
-
-
-        /*
-         * Iterates over each line in the wordlist and encrypts the data
-         * When finished it writes the result to the output box
+        /* CreateEncryptionThreads(wordlist, encryptionMethod, hashes, threadCount)
+         * Splits the wordlist words into N parts (threadCount). 
+         * Creates threads to handle each part of the wordlist
          * 
-         * @param wordlist Wordlist file location
-         * @param encryptionMethod Method of encryption e.g: SHA1
-         * @param hashToCrack Hash to crack
-         * @return correct password or a message informing the user that it was unable to be cracked. 
+         * @param wordlist            Wordlist file location
+         * @param encryptionMethod    Method of encryption e.g: SHA1
+         * @param hashes              Hashes to crack
          */
-        public void CreateEncryptionThreads(string wordlist, string encryptionMethod, string[] hashes, int threadCount)
+        static public void CreateEncryptionThreads(string wordlist, string encryptionMethod, List<String> hashes, int threadCount)
         {
-            List<string> words = File.ReadLines(wordlist).ToList();
+
+            List<string> words = Utils.Utilities.StreamReadlines(wordlist);
             List<int> parts = Utils.Utilities.CalculateThreadWorkCount(words.Count(), threadCount);
             List<int> indexs = Utils.Utilities.CalculateIndex(parts, threadCount);
+
             indexs[threadCount - 1] = indexs[threadCount - 1] - 1;
+            
+            var procTime = DateTime.Now - Process.GetCurrentProcess().StartTime;
+            var procTimeInSec = procTime.Seconds;
+
             for (int i = 0; i < threadCount; i++)
             {
                 int index = indexs[i];
@@ -227,16 +266,26 @@ namespace Encryption
                 Thread t = new Thread(new ThreadStart(() => ThreadEncrypt(part, hashes, encryptionMethod)));
                 t.Start();
             }
+            form.writeToLogBox(string.Format("Finished in {0} seconds\r\n", procTimeInSec));
         }
 
-        public static void ThreadEncrypt(List<String> part, string[] hashes, string encryptionMethod)
+
+        /* ThreadEncrypt(part, hashes, encryptionMethod)
+         * Iterates over each line in the part of the wordlist it was assigned.
+         * If the result is not NULL it writes it to the output box.
+         * 
+         * @param part                List of strings the thread is assigned to handle
+         * @param hashes              Hashes to crack
+         * @param encryptionMethod    Method of encryption e.g: SHA1
+         */
+        public static void ThreadEncrypt(List<String> part, List<String> hashes, string encryptionMethod)
         {
-            foreach (var line in part)
+            foreach (string line in part)
             {
                 string encryptedLine = Encrypt(line, encryptionMethod);
-                string result = checkForMatches(hashes, encryptedLine, line);
+                string result = checkForMatches(hashes, line, encryptedLine);
                 if (result != null)
-                    form.writeToTextBox(result);
+                    form.writeToOutputBox(result);
             }
 
         }

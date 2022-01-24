@@ -1,33 +1,46 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Drawing;
+using System.Collections.Generic;
+using System.Linq;
+using System.ComponentModel;
 
 namespace ccrack {
-    
-    
+
     public partial class Form1 : Form
     {
         public static Form1 form;
-        private System.Windows.Forms.NotifyIcon notifyIcon1;
+        BackgroundWorker backgroundWorker1 = new BackgroundWorker();
 
         public Form1()
         {
             InitializeComponent();
             form = this;
+            this.SetStyle(
+            ControlStyles.AllPaintingInWmPaint |
+            ControlStyles.UserPaint |
+            ControlStyles.DoubleBuffer | 
+            ControlStyles.OptimizedDoubleBuffer,
+            true);
+            backgroundWorker1.DoWork += BackgroundWorkerDoWork;
             TextBox.CheckForIllegalCrossThreadCalls = false;
+            backgroundWorker1.WorkerSupportsCancellation = true; //Allow for the process to be cancelled
             cancelButton.Enabled = false;
-            getEncryptionMethod.Items.Add("SHA1");
-            getEncryptionMethod.Items.Add("SHA256");
-            getEncryptionMethod.Items.Add("SHA384");
-            getEncryptionMethod.Items.Add("SHA512");
-            getEncryptionMethod.Items.Add("MD5");
+            string[] supportedFormats = { "SHA1", "SHA256", "SHA384", "SHA512", "MD5" };
+            foreach (string format  in supportedFormats)
+                getEncryptionMethod.Items.Add(format);
 
         }
 
-        public void writeToTextBox(string text)
+        public void writeToOutputBox(string text)
         {
 
             output.Text += $"{text}\r";
+        }
+
+        public void writeToLogBox(string text)
+        {
+
+            log.Text += $"{text}\r";
         }
 
 
@@ -40,16 +53,28 @@ namespace ccrack {
 
         }
 
-        private void button1_Click(object sender, EventArgs e) {
+
+        private void BackgroundWorkerDoWork(object sender, DoWorkEventArgs e)
+        {
             clearTextBox();
             crackButton.Enabled = false;
             cancelButton.Enabled = true;
-            var en = new Encryption.Encryptor();
             var wordlist = (string)wordlistFile.Text;
             int threadCount = int.Parse(setThreadCount.Text);
-            string[] collectedHashes = en.cleanHashes(hash.Text.Split('\n'));
+            List<string> collectedHashes = Utils.Utilities.cleanHashes(hash.Text.Split('\n')).ToList();
+            if (hashFile.Text != null)
+            {
+                List<string> collectedHashesFromFile = Utils.Utilities.StreamReadlines(hashFile.Text);
+                collectedHashes.AddRange(collectedHashesFromFile);
+            }
             var encryptionMethod = (string)getEncryptionMethod.SelectedItem;
-            en.CreateEncryptionThreads(wordlist, encryptionMethod, collectedHashes, threadCount);
+            Encryption.Encryptor.CreateEncryptionThreads(wordlist, encryptionMethod, collectedHashes, threadCount);
+        }
+
+        void button1_Click(object sender, EventArgs e) {
+
+            var encryptionMethod = (string)getEncryptionMethod.SelectedItem;
+            backgroundWorker1.RunWorkerAsync();
             crackButton.Enabled = true;
         }
 
@@ -85,10 +110,19 @@ namespace ccrack {
 
         private void cancelButton_Click(object sender, EventArgs e)
         {
+            if (backgroundWorker1.IsBusy)
+            {
+                backgroundWorker1.CancelAsync();
+            }
             crackButton.Enabled = true;
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click_1(object sender, EventArgs e)
         {
 
         }

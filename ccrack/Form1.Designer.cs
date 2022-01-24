@@ -36,7 +36,7 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.label6 = new System.Windows.Forms.Label();
             this.setThreadCount = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.hashFile = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.cancelButton = new System.Windows.Forms.Button();
@@ -47,9 +47,13 @@
             this.label1 = new System.Windows.Forms.Label();
             this.hashes = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.log = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.tabPage3.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // printDialog1
@@ -63,7 +67,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(281, 384);
+            this.tabPage3.Size = new System.Drawing.Size(348, 384);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Output";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -73,19 +77,19 @@
             this.output.AcceptsReturn = true;
             this.output.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.output.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.output.Location = new System.Drawing.Point(6, 19);
+            this.output.Location = new System.Drawing.Point(10, 19);
             this.output.Multiline = true;
             this.output.Name = "output";
             this.output.ReadOnly = true;
             this.output.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.output.Size = new System.Drawing.Size(272, 358);
+            this.output.Size = new System.Drawing.Size(324, 358);
             this.output.TabIndex = 10;
             this.output.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 3);
+            this.label4.Location = new System.Drawing.Point(7, 3);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(39, 13);
             this.label4.TabIndex = 11;
@@ -95,7 +99,7 @@
             // 
             this.tabPage1.Controls.Add(this.label6);
             this.tabPage1.Controls.Add(this.setThreadCount);
-            this.tabPage1.Controls.Add(this.textBox2);
+            this.tabPage1.Controls.Add(this.hashFile);
             this.tabPage1.Controls.Add(this.label5);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.cancelButton);
@@ -108,7 +112,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(281, 384);
+            this.tabPage1.Size = new System.Drawing.Size(348, 384);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Config";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -116,7 +120,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(7, 99);
+            this.label6.Location = new System.Drawing.Point(7, 102);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(46, 13);
             this.label6.TabIndex = 18;
@@ -130,12 +134,12 @@
             this.setThreadCount.TabIndex = 17;
             this.setThreadCount.Text = "5";
             // 
-            // textBox2
+            // hashFile
             // 
-            this.textBox2.Location = new System.Drawing.Point(10, 329);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(265, 20);
-            this.textBox2.TabIndex = 16;
+            this.hashFile.Location = new System.Drawing.Point(10, 329);
+            this.hashFile.Name = "hashFile";
+            this.hashFile.Size = new System.Drawing.Size(265, 20);
+            this.hashFile.TabIndex = 16;
             // 
             // label5
             // 
@@ -229,19 +233,56 @@
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Location = new System.Drawing.Point(1, 6);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(289, 410);
+            this.tabControl1.Size = new System.Drawing.Size(356, 410);
             this.tabControl1.TabIndex = 13;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.label3);
+            this.tabPage2.Controls.Add(this.log);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(348, 384);
+            this.tabPage2.TabIndex = 3;
+            this.tabPage2.Text = "Log";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // log
+            // 
+            this.log.AcceptsReturn = true;
+            this.log.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.log.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.log.Location = new System.Drawing.Point(6, 19);
+            this.log.Multiline = true;
+            this.log.Name = "log";
+            this.log.ReadOnly = true;
+            this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.log.Size = new System.Drawing.Size(328, 358);
+            this.log.TabIndex = 11;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 3);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(25, 13);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "Log";
+            this.label3.Click += new System.EventHandler(this.label3_Click_1);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(293, 417);
+            this.ClientSize = new System.Drawing.Size(369, 417);
             this.Controls.Add(this.tabControl1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "ccrack";
@@ -251,6 +292,8 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -269,11 +312,14 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label hashes;
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox hashFile;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox setThreadCount;
         private System.Windows.Forms.TextBox hash;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox log;
     }
 }
 
