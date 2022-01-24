@@ -1,5 +1,5 @@
 # ccrack
-An unfinished Password cracker coded in C
+An unfinished Password cracker coded in C#
 <br>
 ![Preview](gui_preview.png)
 
